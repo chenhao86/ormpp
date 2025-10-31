@@ -6,6 +6,7 @@
 #include <climits>
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "utility.hpp"
 
@@ -399,6 +400,9 @@ class sqlite {
 #ifdef ORMPP_ENABLE_LOG
     std::cout << sql << std::endl;
 #endif
+
+    std::unique_lock<std::mutex> lk(mutex_);
+
     int result = sqlite3_prepare_v2(handle_, sql.data(), (int)sql.size(),
                                     &stmt_, nullptr);
     if (result != SQLITE_OK) {
@@ -738,6 +742,9 @@ class sqlite {
 #ifdef ORMPP_ENABLE_LOG
     std::cout << sql << std::endl;
 #endif
+
+    std::unique_lock<std::mutex> lk(mutex_);
+
     if (sqlite3_prepare_v2(handle_, sql.data(), (int)sql.size(), &stmt_,
                            nullptr) != SQLITE_OK) {
       set_last_error(sqlite3_errmsg(handle_));
@@ -763,6 +770,9 @@ class sqlite {
 #ifdef ORMPP_ENABLE_LOG
     std::cout << sql << std::endl;
 #endif
+
+    std::unique_lock<std::mutex> lk(mutex_);
+
     if (sqlite3_prepare_v2(handle_, sql.data(), (int)sql.size(), &stmt_,
                            nullptr) != SQLITE_OK) {
       set_last_error(sqlite3_errmsg(handle_));
@@ -822,6 +832,7 @@ class sqlite {
   inline static std::string last_error_;
   inline static bool has_error_ = false;
   inline static bool transaction_ = true;
+  std::mutex mutex_;  
 };
 }  // namespace ormpp
 
